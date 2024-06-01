@@ -1,11 +1,15 @@
 import 'package:amma/util/providers/auth_provider.dart';
+import 'package:amma/util/providers/suggestions_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_mlkit_image_labeling/google_mlkit_image_labeling.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:io';
+import 'dart:typed_data'; // Import this to use Uint8List
 
 class AddFlashcardScreen extends ConsumerStatefulWidget {
   final DocumentSnapshot? doc;
@@ -56,8 +60,8 @@ class AddFlashcardScreenState extends ConsumerState<AddFlashcardScreen> {
       uiSettings: [
         AndroidUiSettings(
           toolbarTitle: 'Crop Image',
-          toolbarColor: Colors.deepOrange,
-          toolbarWidgetColor: Colors.white,
+          toolbarColor: Colors.purple,
+          toolbarWidgetColor: Colors.black,
           initAspectRatio: CropAspectRatioPreset.original,
           lockAspectRatio: true,
         ),
@@ -67,6 +71,12 @@ class AddFlashcardScreenState extends ConsumerState<AddFlashcardScreen> {
       ],
     );
     if (croppedFile != null) {
+      ref
+          .read(imageLabelSuggestionsProvider.notifier)
+          .updateInputImage(InputImage.fromFilePath(croppedFile.path));
+      await ref
+          .read(imageLabelSuggestionsProvider.notifier)
+          .processImageLabelsForSelectedImage();
       return File(croppedFile.path);
     }
     return null;
@@ -86,13 +96,28 @@ class AddFlashcardScreenState extends ConsumerState<AddFlashcardScreen> {
 
     try {
       String? imageUrl;
+
       if (_image != null) {
         final userId = ref.read(firebaseAuthProvider).currentUser?.uid;
         final fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
+
+        // Compressing the image
+        List<int> compressedImage = await FlutterImageCompress.compressWithList(
+          _image!.readAsBytesSync(), // Assuming _image is of type File
+          minHeight: 480, // Adjust these values as per your requirements
+          minWidth: 480,
+          quality: 30, // Adjust the quality as needed
+        );
+
+        // Convert List<int> to Uint8List
+        Uint8List compressedUint8List = Uint8List.fromList(compressedImage);
+
+        // Uploading the compressed image
         final storageRef = FirebaseStorage.instance
             .ref()
             .child('users/$userId/flashcards/$fileName');
-        await storageRef.putFile(_image!);
+        await storageRef.putData(compressedUint8List);
+
         imageUrl = await storageRef.getDownloadURL();
       }
 
@@ -161,6 +186,7 @@ class AddFlashcardScreenState extends ConsumerState<AddFlashcardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    var suggestions = ref.watch(imageLabelSuggestionsProvider).suggestions;
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.doc == null ? 'Add Flashcard' : 'Edit Flashcard'),
@@ -202,6 +228,25 @@ class AddFlashcardScreenState extends ConsumerState<AddFlashcardScreen> {
                       child: const Text('Take Picture'),
                     ),
                   ],
+                ),
+              ),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: suggestions.map((label) {
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: InkWell(
+                        onTap: () {
+                          _annotationController.text = label;
+                        },
+                        child: Chip(
+                          label: Text(label),
+                          backgroundColor: Colors.purple,
+                        ),
+                      ),
+                    );
+                  }).toList(),
                 ),
               ),
               const SizedBox(height: 20),

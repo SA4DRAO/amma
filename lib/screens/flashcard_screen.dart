@@ -1,20 +1,20 @@
+import 'package:amma/screens/add_flashcard_screen.dart';
+import 'package:amma/screens/settings_screen.dart';
 import 'package:amma/util/providers/auth_provider.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'settings_screen.dart';
-import 'add_flashcard_screen.dart'; // Import AddFlashcardScreen if needed
 
 class FlashcardScreen extends ConsumerStatefulWidget {
   const FlashcardScreen({super.key});
 
   @override
-  _FlashcardScreenState createState() => _FlashcardScreenState();
+  FlashcardScreenState createState() => FlashcardScreenState();
 }
 
-class _FlashcardScreenState extends ConsumerState<FlashcardScreen> {
+class FlashcardScreenState extends ConsumerState<FlashcardScreen> {
   late Future<void> _refreshFuture;
 
   @override
@@ -25,7 +25,7 @@ class _FlashcardScreenState extends ConsumerState<FlashcardScreen> {
 
   Future<void> _fetchFlashcards() async {
     // Simulating a fetch delay
-    await Future.delayed(Duration(seconds: 1));
+    await Future.delayed(const Duration(seconds: 1));
     return;
   }
 
@@ -65,12 +65,12 @@ class _FlashcardScreenState extends ConsumerState<FlashcardScreen> {
 
         // Show a confirmation snackbar
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Flashcard deleted')),
+          const SnackBar(content: Text('Flashcard deleted')),
         );
       } catch (e) {
         // Show an error snackbar
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to delete flashcard')),
+          const SnackBar(content: Text('Failed to delete flashcard')),
         );
       }
     }
@@ -85,14 +85,6 @@ class _FlashcardScreenState extends ConsumerState<FlashcardScreen> {
           ),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () {
-              setState(() {
-                _refreshFuture = _fetchFlashcards();
-              });
-            },
-          ),
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
