@@ -39,19 +39,38 @@ class _FlashcardViewPageState extends ConsumerState<FlashcardViewPage> {
 
   Future<void> _startListening() async {
     final speechToText = ref.read(speechToTextProvider);
-    if (await speechToText.initialize(
-      onStatus: (status) {
-        if (status == 'listening') {
-          setState(() => _isListening = true);
-        } else {
-          setState(() => _isListening = false);
-        }
-      },
-    )) {
+    if (await speechToText.initialize()) {
+      setState(() {
+        _isListening = true;
+      });
       speechToText.listen(
         onResult: (result) {
           setState(() {
             _textController.text = result.recognizedWords;
+            _isListening = false;
+
+            // Check if the recognized word matches the description
+            if (result.recognizedWords.toLowerCase() ==
+                widget.description.toLowerCase()) {
+              // Show dialog with smiley face
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: const Text('Correct Word Detected!'),
+                    content: const Text('😊'),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('Close'),
+                      ),
+                    ],
+                  );
+                },
+              );
+            }
           });
         },
         localeId: widget.language,
@@ -62,6 +81,9 @@ class _FlashcardViewPageState extends ConsumerState<FlashcardViewPage> {
   void _stopListening() {
     final speechToText = ref.read(speechToTextProvider);
     speechToText.stop();
+    setState(() {
+      _isListening = false;
+    });
   }
 
   void _speakText() {
@@ -77,7 +99,8 @@ class _FlashcardViewPageState extends ConsumerState<FlashcardViewPage> {
     _ttsPitch = ref.watch(ttsSettingsProvider).pitch;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Speech to Text & TTS'),
+        centerTitle: true,
+        title: Text(widget.description),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),

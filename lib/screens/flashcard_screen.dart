@@ -19,6 +19,33 @@ final flashcardsStreamProvider = StreamProvider.family<
       );
 });
 
+final flashcardDeletionProvider =
+    AutoDisposeFutureProvider.family<void, String>((ref, docId) async {
+  final user = ref.watch(firebaseAuthProvider).currentUser;
+  if (user == null) return;
+
+  final flashcardData = await FirebaseFirestore.instance
+      .collection('users')
+      .doc(user.uid)
+      .collection('flashcards')
+      .doc(docId)
+      .get();
+
+  final imageUrl = flashcardData.data()?['imageUrl'];
+
+  try {
+    // Delete the image from Firebase Storage if there's a URL
+    if (imageUrl != null) {
+      await FirebaseStorage.instance.refFromURL(imageUrl).delete();
+    }
+
+    // Delete the flashcard document from Firestore
+    await flashcardData.reference.delete();
+  } catch (e) {
+    // Handle error
+  }
+});
+
 class FlashcardScreen extends ConsumerStatefulWidget {
   const FlashcardScreen({super.key});
 
@@ -26,38 +53,16 @@ class FlashcardScreen extends ConsumerStatefulWidget {
   FlashcardScreenState createState() => FlashcardScreenState();
 }
 
-class FlashcardScreenState extends ConsumerState<FlashcardScreen> {
+class FlashcardScreenState extends ConsumerState<FlashcardScreen>
+    with AutomaticKeepAliveClientMixin {
   int _currentIndex = 0;
 
-  Future<void> deleteFlashcard(
-      String docId, String? imageUrl, User user) async {
-    try {
-      // Delete the image from Firebase Storage if there's a URL
-      if (imageUrl != null) {
-        await FirebaseStorage.instance.refFromURL(imageUrl).delete();
-      }
-
-      // Delete the flashcard document from Firestore
-      final flashcardsRef = FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .collection('flashcards');
-      await flashcardsRef.doc(docId).delete();
-
-      // Show a confirmation snackbar
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Flashcard deleted')),
-      );
-    } catch (e) {
-      // Show an error snackbar
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to delete flashcard')),
-      );
-    }
-  }
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final user = ref.watch(firebaseAuthProvider).currentUser;
 
     if (user == null) {
@@ -249,11 +254,25 @@ class FlashcardScreenState extends ConsumerState<FlashcardScreen> {
                                           color: Colors.white,
                                         ),
                                         onPressed: () async {
-                                          await deleteFlashcard(
-                                            docId,
-                                            data['imageUrl'],
-                                            user,
-                                          );
+                                          try {
+                                            final deleteFlashcard = ref.read(
+                                                flashcardDeletionProvider(
+                                                    docId));
+                                            deleteFlashcard;
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              const SnackBar(
+                                                  content: Text(
+                                                      'Flashcard deleted')),
+                                            );
+                                          } catch (e) {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              const SnackBar(
+                                                  content: Text(
+                                                      'Failed to delete flashcard')),
+                                            );
+                                          }
                                         },
                                       ),
                                     ],
