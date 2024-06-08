@@ -83,6 +83,13 @@ class AddFlashcardScreenState extends ConsumerState<AddFlashcardScreen> {
   }
 
   Future<void> _saveFlashcard() async {
+    if (_image == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please add an image')),
+      );
+      return;
+    }
+
     if (_annotationController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please add an annotation')),
@@ -97,31 +104,28 @@ class AddFlashcardScreenState extends ConsumerState<AddFlashcardScreen> {
     try {
       String? imageUrl;
 
-      if (_image != null) {
-        final userId = ref.read(firebaseAuthProvider).currentUser?.uid;
-        final fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
-
-        // Compressing the image
-        List<int> compressedImage = await FlutterImageCompress.compressWithList(
-          _image!.readAsBytesSync(), // Assuming _image is of type File
-          minHeight: 480, // Adjust these values as per your requirements
-          minWidth: 480,
-          quality: 30, // Adjust the quality as needed
-        );
-
-        // Convert List<int> to Uint8List
-        Uint8List compressedUint8List = Uint8List.fromList(compressedImage);
-
-        // Uploading the compressed image
-        final storageRef = FirebaseStorage.instance
-            .ref()
-            .child('users/$userId/flashcards/$fileName');
-        await storageRef.putData(compressedUint8List);
-
-        imageUrl = await storageRef.getDownloadURL();
-      }
-
       final userId = ref.read(firebaseAuthProvider).currentUser?.uid;
+      final fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
+
+      // Compressing the image
+      List<int> compressedImage = await FlutterImageCompress.compressWithList(
+        _image!.readAsBytesSync(), // Assuming _image is of type File
+        minHeight: 480, // Adjust these values as per your requirements
+        minWidth: 480,
+        quality: 30, // Adjust the quality as needed
+      );
+
+      // Convert List<int> to Uint8List
+      Uint8List compressedUint8List = Uint8List.fromList(compressedImage);
+
+      // Uploading the compressed image
+      final storageRef = FirebaseStorage.instance
+          .ref()
+          .child('users/$userId/flashcards/$fileName');
+      await storageRef.putData(compressedUint8List);
+
+      imageUrl = await storageRef.getDownloadURL();
+
       final flashcardsRef = FirebaseFirestore.instance
           .collection('users')
           .doc(userId)
@@ -137,9 +141,8 @@ class AddFlashcardScreenState extends ConsumerState<AddFlashcardScreen> {
         });
       } else {
         // Update existing flashcard
-        final data = widget.doc!.data() as Map<String, dynamic>;
         await widget.doc!.reference.update({
-          'imageUrl': imageUrl ?? data['imageUrl'],
+          'imageUrl': imageUrl,
           'annotation': _annotationController.text,
           'timestamp': FieldValue.serverTimestamp(),
           'language': _getLocaleFromLanguage(_selectedLanguage),
@@ -174,13 +177,13 @@ class AddFlashcardScreenState extends ConsumerState<AddFlashcardScreen> {
   String _getLocaleFromLanguage(String language) {
     switch (language) {
       case 'English':
-        return 'en';
+        return 'en_US';
       case 'Telugu':
-        return 'te';
+        return 'te-IN';
       case 'Hindi':
-        return 'hi';
+        return 'hi-IN';
       default:
-        return 'en'; // Default to English
+        return 'en_US'; // Default to English
     }
   }
 
