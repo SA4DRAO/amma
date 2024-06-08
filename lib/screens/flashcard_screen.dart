@@ -6,7 +6,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:amma/screens/add_flashcard_screen.dart';
 import 'package:amma/screens/settings_screen.dart';
-import 'package:amma/screens/game_screen.dart';
 import 'package:amma/util/providers/auth_provider.dart';
 
 final flashcardsStreamProvider = StreamProvider.family<
@@ -93,7 +92,6 @@ class FlashcardScreenState extends ConsumerState<FlashcardScreen> {
           _buildFlashcardContent(user),
           const SettingsScreen(),
           const AddFlashcardScreen(),
-          GameScreen(user: user),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -119,14 +117,6 @@ class FlashcardScreenState extends ConsumerState<FlashcardScreen> {
                 onPressed: () {
                   setState(() {
                     _currentIndex = 0; // Navigate to the flashcards tab
-                  });
-                },
-              ),
-              IconButton(
-                icon: const Icon(Icons.gamepad),
-                onPressed: () {
-                  setState(() {
-                    _currentIndex = 3; // Navigate to the game tab
                   });
                 },
               ),

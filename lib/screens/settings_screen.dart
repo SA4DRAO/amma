@@ -6,7 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:amma/util/providers/auth_provider.dart';
 
 class SettingsScreen extends ConsumerWidget {
-  const SettingsScreen({Key? key});
+  const SettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -51,12 +51,6 @@ class SettingsScreen extends ConsumerWidget {
                 builder: (context) => const CreditsScreen(),
               ),
             );
-          },
-        ),
-        ListTile(
-          title: const Text('Statistics'),
-          onTap: () {
-            // Navigate to statistics screen
           },
         ),
         SwitchListTile(
