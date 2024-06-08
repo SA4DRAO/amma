@@ -20,8 +20,6 @@ class FlashcardViewPage extends ConsumerStatefulWidget {
 
 class _FlashcardViewPageState extends ConsumerState<FlashcardViewPage> {
   final TextEditingController _textController = TextEditingController();
-  double _ttsSpeed = 1.0;
-  double _ttsPitch = 1.0;
   bool _isListening = false;
 
   @override
@@ -38,7 +36,7 @@ class _FlashcardViewPageState extends ConsumerState<FlashcardViewPage> {
   }
 
   Future<void> _startListening() async {
-    final speechToText = ref.read(speechToTextProvider);
+    final speechToText = ref.watch(speechToTextProvider);
     if (await speechToText.initialize()) {
       setState(() {
         _isListening = true;
@@ -88,15 +86,15 @@ class _FlashcardViewPageState extends ConsumerState<FlashcardViewPage> {
 
   void _speakText() {
     final flutterTts = ref.read(flutterTtsProvider);
-    flutterTts.setSpeechRate(_ttsSpeed);
-    flutterTts.setPitch(_ttsPitch);
+    final ttsSettings = ref.watch(ttsSettingsProvider);
+    flutterTts.setSpeechRate(ttsSettings.speed);
+    flutterTts.setPitch(ttsSettings.pitch);
     flutterTts.speak(widget.description);
   }
 
   @override
   Widget build(BuildContext context) {
-    _ttsSpeed = ref.watch(ttsSettingsProvider).speed;
-    _ttsPitch = ref.watch(ttsSettingsProvider).pitch;
+    final ttsSettings = ref.watch(ttsSettingsProvider);
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -138,27 +136,23 @@ class _FlashcardViewPageState extends ConsumerState<FlashcardViewPage> {
               ],
             ),
             const SizedBox(height: 20),
-            Text('TTS Speed: ${_ttsSpeed.toStringAsFixed(2)}'),
+            Text('TTS Speed: ${ttsSettings.speed.toStringAsFixed(2)}'),
             Slider(
-              value: _ttsSpeed,
+              value: ttsSettings.speed,
               min: 0.1,
               max: 2.0,
               onChanged: (value) {
-                setState(() {
-                  _ttsSpeed = value;
-                });
+                ref.read(ttsSettingsProvider.notifier).setSpeed(value);
               },
             ),
             const SizedBox(height: 20),
-            Text('TTS Pitch: ${_ttsPitch.toStringAsFixed(2)}'),
+            Text('TTS Pitch: ${ttsSettings.pitch.toStringAsFixed(2)}'),
             Slider(
-              value: _ttsPitch,
+              value: ttsSettings.pitch,
               min: 0.5,
               max: 2.0,
               onChanged: (value) {
-                setState(() {
-                  _ttsPitch = value;
-                });
+                ref.read(ttsSettingsProvider.notifier).setPitch(value);
               },
             ),
           ],
