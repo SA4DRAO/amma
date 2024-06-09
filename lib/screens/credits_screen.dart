@@ -94,16 +94,6 @@ class CreditsScreen extends StatelessWidget {
 
   Future<void> _launchURL(String url) async {
     final Uri uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      try {
-        await launchUrl(uri);
-      } catch (e) {
-        // Handle the exception here, e.g., show an error message
-        print('Error launching URL: $e');
-      }
-    } else {
-      // Handle the case where the URL cannot be launched
-      print('Could not launch $url');
-    }
+    await launchUrl(uri);
   }
 }
