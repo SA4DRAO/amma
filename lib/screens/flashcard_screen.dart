@@ -180,6 +180,7 @@ class FlashcardScreenState extends ConsumerState<FlashcardScreen>
                                 imgUrl: data['imageUrl'],
                                 description: data['annotation'],
                                 language: data['language'],
+                                audioUrl: data['audioUrl'],
                               );
                             }));
                           },
