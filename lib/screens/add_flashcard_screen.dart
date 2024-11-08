@@ -132,6 +132,26 @@ class AddFlashcardScreenState extends ConsumerState<AddFlashcardScreen> {
     }
   }
 
+  Future<void> _cleanupAudio() async {
+    // Get the current audio path before resetting the state
+    final audioPath = ref.read(audioRecordingProvider);
+
+    // Reset the audio recording state
+    ref.read(audioRecordingProvider.notifier).state = null;
+
+    // Delete the temporary audio file if it exists
+    if (audioPath != null) {
+      try {
+        final audioFile = File(audioPath);
+        if (await audioFile.exists()) {
+          await audioFile.delete();
+        }
+      } catch (e) {
+        print('Error deleting temporary audio file: $e');
+      }
+    }
+  }
+
   Future<void> _saveFlashcard() async {
     if (_image == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -206,6 +226,9 @@ class AddFlashcardScreenState extends ConsumerState<AddFlashcardScreen> {
         // Update existing flashcard
         await widget.doc!.reference.update(flashcardData);
       }
+
+      // Clean up audio after successful save
+      await _cleanupAudio();
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -408,6 +431,8 @@ class AddFlashcardScreenState extends ConsumerState<AddFlashcardScreen> {
   void dispose() {
     _annotationController.dispose();
     _audioRecorder.dispose();
+    _cleanupAudio();
+
     super.dispose();
   }
 }
