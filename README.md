@@ -38,7 +38,7 @@
 
 To get started with Amma, simply:
 
-1. **[Download the app from the GitHub Releases page](https://github.com/sa4drao/Amma/releases)**.
+1. Send an email to *adrao18020@gmail.com* to request an invite to join the testing group.
 2. **Sign up** to save your flashcards and enjoy cloud synchronization.
 3. **Create or upload flashcards** using Google MLKit for automatic recognition.
 4. **Adjust settings** to personalize the experience, from audio speed and pitch to appearance themes.
@@ -46,7 +46,3 @@ To get started with Amma, simply:
 ## Contributions
 
 Contributions to Amma are welcome! Whether you're interested in expanding features, fixing bugs, or enhancing accessibility, please submit a pull request or open an issue on our repository.
-
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
