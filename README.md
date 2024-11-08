@@ -18,7 +18,7 @@
 
 - **Personalized Learning**: Create custom flashcards for personalized learning experiences tailored to your needs.
 - **Expand Vocabulary**: Add new words as needed to continually grow and reinforce the vocabulary.
-
+- **Add Flashcards in your own language**: Add flashcards in any one of our 11 supported languages.
 ### 🎙️ Adjustable Audio Playback
 
 - **Speed & Pitch Control**: Adjust the speed and pitch of the flashcards being read out, enabling the child to listen comfortably at their own pace.
@@ -33,6 +33,14 @@
 
 - **Frontend**: Flutter
 - **Backend**: Firebase
+
+## Screenshots
+![WhatsApp Image 2024-11-08 at 12 07 51_ae0f27e9](https://github.com/user-attachments/assets/82438b0a-1342-4a1b-9ec2-e4b4bde4223e)
+![WhatsApp Image 2024-11-08 at 12 07 52_8d2aac04](https://github.com/user-attachments/assets/8e89c112-f3d2-4293-8c82-e93f23c2d566)
+![WhatsApp Image 2024-11-08 at 12 07 51_dea268c2](https://github.com/user-attachments/assets/16e4ed39-a846-45e5-8e53-c5a0946b8db0)
+![WhatsApp Image 2024-11-08 at 12 07 50_592d7e3d](https://github.com/user-attachments/assets/f5e5a161-07f6-4db8-90b3-820ec7af916d)
+![WhatsApp Image 2024-11-08 at 12 23 15_94d81170](https://github.com/user-attachments/assets/28c592f9-17b1-4f66-bc67-746b4352d6a1)
+![WhatsApp Image 2024-11-08 at 12 23 17_031feb2b](https://github.com/user-attachments/assets/8b098158-b82d-4a36-88de-b38e5fc5d01b)
 
 ## Getting Started
 
