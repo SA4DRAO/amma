@@ -46,7 +46,3 @@ To get started with Amma, simply:
 ## Contributions
 
 Contributions to Amma are welcome! Whether you're interested in expanding features, fixing bugs, or enhancing accessibility, please submit a pull request or open an issue on our repository.
-
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
